@@ -19,11 +19,6 @@ TurboPi is an open-source AI vision vehicle based on Raspberry Pi, specifically 
 - **Official Documentation**: [https://docs.hiwonder.com/projects/TurboPi/en/standard/](https://docs.hiwonder.com/projects/TurboPi/en/standard/)
 - **Technical Support**: support@hiwonder.com
 
-### Related Technologies
-
-- [OpenCV](https://opencv.org/) - Computer Vision Library
-- [MediaPipe](https://mediapipe.dev/) - Machine Learning Framework
-
 ## Key Features
 
 ### AI Vision Functions
@@ -81,6 +76,11 @@ turbopi/
 
 - **Current Version**: v1.0.0 (2024-03-14)
 - **Supported Platform**: Raspberry Pi 4B or 5B
+
+### Related Technologies
+
+- [OpenCV](https://opencv.org/) - Computer Vision Library
+- [MediaPipe](https://mediapipe.dev/) - Machine Learning Framework
 
 ---
 

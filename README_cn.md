@@ -21,11 +21,6 @@ TurboPi是一款基于树莓派开发，专为初学者设计的开源AI视觉�
 - **官方文档**: [https://docs.hiwonder.com/projects/TurboPi/en/standard/](https://docs.hiwonder.com/projects/TurboPi/en/standard/)
 - **技术支持**: support@hiwonder.com
 
-### 相关技术
-
-- [OpenCV](https://opencv.org/) - 计算机视觉库
-- [MediaPipe](https://mediapipe.dev/) - 机器学习框架
-
 ## 主要功能
 
 ### AI视觉功能
@@ -83,6 +78,11 @@ turbopi/
 
 - **当前版本**: v1.0.0 (2024-03-14)
 - **支持平台**: 树莓派4B或5B
+
+### 相关技术
+
+- [OpenCV](https://opencv.org/) - 计算机视觉库
+- [MediaPipe](https://mediapipe.dev/) - 机器学习框架
 
 ---
 

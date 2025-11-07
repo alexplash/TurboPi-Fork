@@ -70,22 +70,25 @@ class Camera:
                         continue
 
                     print("DEBUG:", frame_tmp.shape, frame_tmp.dtype)
+                    # ✅ Already BGR — don't convert
+                    frame_bgr = frame_tmp
 
-                    # ✅ Convert raw YUYV → BGR
-                    frame_bgr = cv2.cvtColor(frame_tmp, cv2.COLOR_YUV2BGR_YUYV)
-
-                    # Save one test still for sanity
+                    # Save debug
                     if not wrote_debug_png:
                         cv2.imwrite('/tmp/camera_debug.png', frame_bgr)
                         wrote_debug_png = True
 
-                    frame_resize = cv2.resize(frame_bgr, (self.width, self.height),
-                                            interpolation=cv2.INTER_NEAREST)
+                    frame_resize = cv2.resize(
+                        frame_bgr, (self.width, self.height),
+                        interpolation=cv2.INTER_NEAREST
+                    )
 
                     if self.correction:
-                        self.frame = cv2.remap(frame_resize, self.map1, self.map2,
-                                            interpolation=cv2.INTER_LINEAR,
-                                            borderMode=cv2.BORDER_CONSTANT)
+                        self.frame = cv2.remap(
+                            frame_resize, self.map1, self.map2,
+                            interpolation=cv2.INTER_LINEAR,
+                            borderMode=cv2.BORDER_CONSTANT
+                        )
                     else:
                         self.frame = frame_resize
 

@@ -2,7 +2,7 @@
 calibration_size = (8, 6)
 
 #采集标定图像存储路径(save path for collecting calibration images)
-save_path = '/home/pi/TurboPi/CameraCalibration/calibration_images/'
+save_path = '/home/alexplash/TurboPi-Fork/CameraCalibration/calibration_images/'
 
 #标定参数存储路径(storage path for calibration parameters)
-calibration_param_path = '/home/alexplash/TurboPi/CameraCalibration/calibration_param'
+calibration_param_path = '/home/alexplash/TurboPi-Fork/CameraCalibration/calibration_param'

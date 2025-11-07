@@ -64,6 +64,6 @@ def startMjpgServer():
         server = ThreadedHTTPServer(('', 8080), MJPG_Handler)
         print("server started")
         server.serve_forever()
-    except KeyboardInterrupt:
-        print("Error starting server")
+    except Exception as e:
+        print(f"Error starting server: {e}")
         pass

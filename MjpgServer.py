@@ -65,4 +65,5 @@ def startMjpgServer():
         print("server started")
         server.serve_forever()
     except KeyboardInterrupt:
+        print("Error starting server")
         pass

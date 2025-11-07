@@ -6,7 +6,7 @@ import cv2
 import time
 import math
 import signal
-import Camera
+from Camera import Camera
 import threading
 import numpy as np
 import yaml_handle

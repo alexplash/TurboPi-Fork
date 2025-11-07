@@ -36,12 +36,9 @@ class Camera:
     def camera_open(self, correction=False):
         try:
             self.cap = cv2.VideoCapture(0)
-
-            # Force YUYV
-            self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('Y','U','Y','V'))
-            self.cap.set(cv2.CAP_PROP_CONVERT_RGB, 0)   # IMPORTANT: get raw YUYV
+            self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('Y', 'U', 'Y', 'V'))
             self.cap.set(cv2.CAP_PROP_FPS, 30)
-
+            self.cap.set(cv2.CAP_PROP_SATURATION, 40)
             self.correction = correction
             self.opened = True
         except Exception as e:
@@ -59,42 +56,36 @@ class Camera:
             print('关闭摄像头失败:', e)
 
     def camera_task(self):
-        wrote_debug_png = False
-
         while True:
             try:
                 if self.opened and self.cap.isOpened():
                     ret, frame_tmp = self.cap.read()
-                    if not ret:
-                        time.sleep(0.01)
-                        continue
+                    if ret:
+                        image = cv2.cvtColor(frame_tmp, cv2.COLOR_BGR2RGB )
 
-                    print("DEBUG:", frame_tmp.shape, frame_tmp.dtype)
-                    # ✅ Already BGR — don't convert
-                    frame_bgr = frame_tmp
-
-                    # Save debug
-                    if not wrote_debug_png:
-                        cv2.imwrite('/tmp/camera_debug.png', frame_bgr)
-                        wrote_debug_png = True
-
-                    frame_resize = cv2.resize(
-                        frame_bgr, (self.width, self.height),
-                        interpolation=cv2.INTER_NEAREST
-                    )
-
-                    if self.correction:
-                        self.frame = cv2.remap(
-                            frame_resize, self.map1, self.map2,
-                            interpolation=cv2.INTER_LINEAR,
-                            borderMode=cv2.BORDER_CONSTANT
-                        )
+                        frame_resize = cv2.resize(image, (self.width, self.height), interpolation=cv2.INTER_NEAREST)
+                        
+                        if self.correction:
+                            self.frame = cv2.remap(frame_resize, self.map1, self.map2, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
+                        else:
+                            self.frame = frame_resize
+                            
+                        ret = False
                     else:
-                        self.frame = frame_resize
-
+                        self.frame = None
+                        self.cap.release()
+                        cap = cv2.VideoCapture(-1)
+                        ret, _ = cap.read()
+                        if ret:
+                            self.cap = cap
+                elif self.opened:
+                    self.cap.release()
+                    cap = cv2.VideoCapture(-1)
+                    ret, _ = cap.read()
+                    if ret:
+                        self.cap = cap              
                 else:
                     time.sleep(0.01)
-
             except Exception as e:
                 print('获取摄像头画面出错:', e)
                 time.sleep(0.01)

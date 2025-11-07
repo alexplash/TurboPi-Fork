@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # coding=utf8
 import sys
-sys.path.append('/home/pi/TurboPi/')
+sys.path.append('/home/alexplash/TurboPi-Fork/')
 import time
 import signal
 import HiwonderSDK.mecanum as mecanum

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # coding=utf8
 import sys
-sys.path.append('/home/pi/TurboPi/')
+sys.path.append('/home/alexplash/TurboPi-Fork/')
 import math
 import HiwonderSDK.ros_robot_controller_sdk as rrc
 

@@ -89,7 +89,7 @@ def startTruckPi():
     threading.Thread(target=MjpgServer.startMjpgServer,
                      daemon=True).start()  # mjpg流服务器(mjpg stream server)
     
-    loading_picture = cv2.imread('/home/pi/TurboPi/loading.jpg')
+    loading_picture = cv2.imread('/home/alexplash/TurboPi-Fork/loading.jpg')
     cam = Camera.Camera()  # 相机读取(camera reading)
     Running.cam = cam
 

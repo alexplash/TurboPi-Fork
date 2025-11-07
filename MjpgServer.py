@@ -57,5 +57,5 @@ def startMjpgServer():
     print("✅ MJPEG server started at http://0.0.0.0:8080")
     server.serve_forever()
 
-if __name__ == "main":
+if __name__ == "__main__":
     startMjpgServer()

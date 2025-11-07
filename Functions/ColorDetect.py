@@ -277,7 +277,7 @@ if __name__ == '__main__':
     board = rrc.Board()
     init()
     start()
-    camera = Camera.Camera()
+    camera = Camera()
     camera.camera_open(correction=True) # 开启畸变矫正,默认不开启(enable distortion correction, disabled by default)
     signal.signal(signal.SIGINT, manual_stop)
     while __isRunning:

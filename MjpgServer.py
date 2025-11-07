@@ -13,7 +13,7 @@ if sys.version_info.major == 2:
 
 import cv2
 import time
-from http.server import BaseHTTPRequestHandler, HTTPServer,ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 from socketserver import ThreadingMixIn
 from Camera import Camera
 
@@ -28,12 +28,24 @@ class MJPG_Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "multipart/x-mixed-replace; boundary=--boundarydonotcross")
         self.end_headers()
 
+        printed = False
+
         while True:
             frame = camera.frame
             if frame is None:
                 time.sleep(0.01)
                 continue
 
+            # ✅ Print frame info ONCE
+            if not printed:
+                print("SERVER FRAME:", frame.shape, frame.dtype)
+                printed = True
+
+            # ✅ If YUYV (2-channel), convert to BGR
+            if frame.ndim == 3 and frame.shape[2] == 2:
+                frame = cv2.cvtColor(frame, cv2.COLOR_YUV2BGR_YUYV)
+
+            # ✅ Encode JPEG
             ret, jpg = cv2.imencode('.jpg', frame, quality)
             if not ret:
                 continue
@@ -47,6 +59,7 @@ class MJPG_Handler(BaseHTTPRequestHandler):
                 self.wfile.write(b"\r\n")
             except:
                 break
+
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""

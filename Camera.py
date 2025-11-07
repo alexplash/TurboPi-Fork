@@ -70,9 +70,19 @@ class Camera:
                     ret, frame_tmp = self.cap.read()
 
                     if ret:
-                        # ✅ frame_tmp is already BGR — no cvtColor needed
+                        print("DEBUG:", frame_tmp.shape, frame_tmp.dtype)
+                        
+                        # Try Bayer → BGR
+                        try:
+                            frame_bgr = cv2.cvtColor(frame_tmp, cv2.COLOR_BAYER_BG2BGR)
+                        except:
+                            try:
+                                frame_bgr = cv2.cvtColor(frame_tmp, cv2.COLOR_BAYER_RG2BGR)
+                            except:
+                                frame_bgr = frame_tmp
+
                         frame_resize = cv2.resize(
-                            frame_tmp, (self.width, self.height),
+                            frame_bgr, (self.width, self.height),
                             interpolation=cv2.INTER_NEAREST
                         )
 
@@ -85,8 +95,6 @@ class Camera:
                         else:
                             self.frame = frame_resize
 
-                    else:
-                        self.frame = None
 
                 else:
                     time.sleep(0.01)

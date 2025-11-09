@@ -61,10 +61,7 @@ class Camera:
                 if self.opened and self.cap.isOpened():
                     ret, frame_tmp = self.cap.read()
                     if ret:
-                        # Convert YUYV → BGR
-                        bgr = cv2.cvtColor(frame_tmp, cv2.COLOR_YUV2BGR_YUY2)
-
-                        frame_resize = cv2.resize(bgr, (self.width, self.height), interpolation=cv2.INTER_NEAREST)
+                        frame_resize = cv2.resize(frame_tmp, (self.width, self.height), interpolation=cv2.INTER_NEAREST)
                         
                         if self.correction:
                             self.frame = cv2.remap(frame_resize, self.map1, self.map2, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)

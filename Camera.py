@@ -37,8 +37,9 @@ class Camera:
         try:
             self.cap = cv2.VideoCapture(0)
             # self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('Y', 'U', 'Y', 'V'))
+            self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
             self.cap.set(cv2.CAP_PROP_FPS, 30)
-            self.cap.set(cv2.CAP_PROP_SATURATION, 40)
+            # self.cap.set(cv2.CAP_PROP_SATURATION, 40)
             self.correction = correction
             self.opened = True
         except Exception as e:
@@ -61,17 +62,13 @@ class Camera:
                 if self.opened and self.cap.isOpened():
                     ret, frame_tmp = self.cap.read()
                     if ret:
-                        # Convert YUYV → BGR
-                        bgr = cv2.cvtColor(frame_tmp, cv2.COLOR_YUV2BGR_YUY2)
-                        frame_resize = cv2.resize(bgr, (self.width, self.height))
 
-                        
-                        if self.correction:
-                            self.frame = cv2.remap(frame_resize, self.map1, self.map2, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
-                        else:
-                            self.frame = frame_resize
-                            
-                        ret = False
+                        # no color conversion
+                        frame_resize = cv2.resize(frame_tmp, (self.width, self.height))
+
+                        # force no fisheye correction
+                        self.frame = frame_resize
+
                     else:
                         self.frame = None
                         self.cap.release()
@@ -84,12 +81,13 @@ class Camera:
                     cap = cv2.VideoCapture(-1)
                     ret, _ = cap.read()
                     if ret:
-                        self.cap = cap              
+                        self.cap = cap
                 else:
                     time.sleep(0.01)
             except Exception as e:
                 print('获取摄像头画面出错:', e)
                 time.sleep(0.01)
+
 
 if __name__ == '__main__':
     camera = Camera()

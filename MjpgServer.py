@@ -54,7 +54,7 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 
 def startMjpgServer():
     server = ThreadedHTTPServer(('', 8080), MJPG_Handler)
-    print("✅ MJPEG server started at http://0.0.0.0:8080")
+    print("✅ MJPEG server started at http://raspberrypi.local:8080")
     server.serve_forever()
 
 if __name__ == "__main__":

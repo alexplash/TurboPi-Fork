@@ -35,13 +35,24 @@ class Camera:
 
     def camera_open(self, correction=False):
         try:
-            self.cap = cv2.VideoCapture(0)
-            # self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('Y', 'U', 'Y', 'V'))
+            # Force V4L2 backend so set() works reliably
+            self.cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
+
+            # Disable automatic RGB conversion so we see the raw format
+            self.cap.set(cv2.CAP_PROP_CONVERT_RGB, 0)
+
+            # Try to force MJPG; if unsupported, we’ll detect raw YUV below
             self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
             self.cap.set(cv2.CAP_PROP_FPS, 30)
-            # self.cap.set(cv2.CAP_PROP_SATURATION, 40)
+
             self.correction = correction
             self.opened = True
+
+            # ---- Diagnostics ----
+            fourcc = int(self.cap.get(cv2.CAP_PROP_FOURCC))
+            fmt = "".join([chr((fourcc >> 8*i) & 0xFF) for i in range(4)])
+            backend = self.cap.get(cv2.CAP_PROP_BACKEND)
+            print(f"[Camera] Backend={backend}, FOURCC={fmt}, CONVERT_RGB={self.cap.get(cv2.CAP_PROP_CONVERT_RGB)}")
         except Exception as e:
             print('打开摄像头失败:', e)
 
@@ -61,29 +72,46 @@ class Camera:
             try:
                 if self.opened and self.cap.isOpened():
                     ret, frame_tmp = self.cap.read()
-                    if ret:
+                    if not ret:
+                        self.frame = None
+                        time.sleep(0.01)
+                        continue
 
-                        # no color conversion
-                        frame_resize = cv2.resize(frame_tmp, (self.width, self.height))
+                    # Shape-driven branch:
+                    #   - (H, W, 2): YUV422 packed (YUYV/UYVY) -> convert to BGR
+                    #   - (H, W, 3): already BGR/RGB -> just resize
+                    #   - (H, W):    GREY -> convert to BGR
+                    if frame_tmp.ndim == 3 and frame_tmp.shape[2] == 2:
+                        # Try YUYV first, then UYVY fallback
+                        try:
+                            bgr = cv2.cvtColor(frame_tmp, cv2.COLOR_YUV2BGR_YUY2)
+                        except cv2.error:
+                            bgr = cv2.cvtColor(frame_tmp, cv2.COLOR_YUV2BGR_UYVY)
+                        out = cv2.resize(bgr, (self.width, self.height), interpolation=cv2.INTER_NEAREST)
 
-                        # force no fisheye correction
-                        self.frame = frame_resize
+                    elif frame_tmp.ndim == 3 and frame_tmp.shape[2] == 3:
+                        # Leave as-is (GStreamer/V4L2 already produced 3-channel)
+                        out = cv2.resize(frame_tmp, (self.width, self.height), interpolation=cv2.INTER_NEAREST)
+
+                    elif frame_tmp.ndim == 2:
+                        # Grayscale → BGR
+                        bgr = cv2.cvtColor(frame_tmp, cv2.COLOR_GRAY2BGR)
+                        out = cv2.resize(bgr, (self.width, self.height), interpolation=cv2.INTER_NEAREST)
 
                     else:
-                        self.frame = None
-                        self.cap.release()
-                        cap = cv2.VideoCapture(-1)
-                        ret, _ = cap.read()
-                        if ret:
-                            self.cap = cap
+                        # Unexpected format; skip this frame
+                        print(f"[Camera] Unexpected frame shape: {frame_tmp.shape}")
+                        time.sleep(0.01)
+                        continue
+
+                    # Force no fisheye correction to rule it out
+                    self.frame = out
+
                 elif self.opened:
-                    self.cap.release()
-                    cap = cv2.VideoCapture(-1)
-                    ret, _ = cap.read()
-                    if ret:
-                        self.cap = cap
+                    time.sleep(0.01)
                 else:
                     time.sleep(0.01)
+
             except Exception as e:
                 print('获取摄像头画面出错:', e)
                 time.sleep(0.01)

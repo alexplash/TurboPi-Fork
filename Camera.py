@@ -42,7 +42,7 @@ class Camera:
             self.cap.set(cv2.CAP_PROP_CONVERT_RGB, 0)
 
             # Try to force MJPG; if unsupported, we’ll detect raw YUV below
-            self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
+            self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"YUYV"))
             self.cap.set(cv2.CAP_PROP_FPS, 30)
 
             self.correction = correction

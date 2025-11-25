@@ -1,3 +1,6 @@
+import sys
+sys.path.append('/home/alexplash/TurboPi-Fork/')
+
 from HiwonderSDK.Sonar import Sonar
 import time
 

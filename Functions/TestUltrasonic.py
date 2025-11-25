@@ -12,7 +12,7 @@ board = rrc.Board()
 sonar = Sonar.Sonar()
 
 # 🔽 add this line to try bus 13 instead of 1
-sonar.i2c = 13   # or 14 if 13 doesn't work
+sonar.i2c = 14   # or 14 if 13 doesn't work
 
 print("Ultrasonic Test Started (Ctrl+C to stop)\n")
 

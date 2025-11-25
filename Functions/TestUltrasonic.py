@@ -1,26 +1,39 @@
+#!/usr/bin/python3
+# coding=utf8
 import sys
-sys.path.append('/home/alexplash/TurboPi-Fork/')
-
-from HiwonderSDK.Sonar import Sonar
 import time
 
-def get_distance_cm(sonar):
-    raw = sonar.getDistance()   # Hiwonder returns millimeters
-    distance_cm = raw / 10.0    # convert to centimeters
-    return distance_cm
+# Make sure Python can find the SDK
+sys.path.append('/home/alexplash/TurboPi-Fork/')
 
-if __name__ == "__main__":
-    sonar = Sonar()
-    
-    print("Ultrasonic Test Started (Ctrl+C to stop)")
-    
-    while True:
-        d = get_distance_cm(sonar)
+# Import TurboPi hardware SDK
+import HiwonderSDK.ros_robot_controller_sdk as rrc
+import HiwonderSDK.Sonar as Sonar
 
-        # ignore invalid readings
-        if d <= 0 or d > 300:
+# Initialize board FIRST (critical)
+board = rrc.Board()
+
+# Initialize ultrasonic sensor
+sonar = Sonar.Sonar()
+
+print("Ultrasonic Test Started (Ctrl+C to stop)\n")
+
+while True:
+    try:
+        # Raw reading in millimeters
+        raw = sonar.getDistance()
+
+        # Convert to centimeters
+        dist_cm = raw / 10.0
+
+        # Filter out bogus readings
+        if dist_cm <= 0 or dist_cm > 300:
             print("No valid reading")
         else:
-            print(f"Distance: {d:.1f} cm")
-        
+            print(f"Distance: {dist_cm:.1f} cm")
+
         time.sleep(0.1)
+
+    except KeyboardInterrupt:
+        print("Stopping ultrasonic test...")
+        break

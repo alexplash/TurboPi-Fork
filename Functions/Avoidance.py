@@ -203,16 +203,20 @@ if __name__ == '__main__':
 
     init()
     start()
+
     HWSONAR = Sonar.Sonar()
+    HWSONAR.i2c = 13      # 👉 force sonar onto the real bus (try 13 first, 14 if needed)
+    print("[DEBUG] Using sonar I2C bus:", HWSONAR.i2c)
+
     camera = Camera.Camera()
-    camera.camera_open(correction=True) # 开启畸变矫正,默认不开启(enable distortion correction, disabled by default)
+    camera.camera_open(correction=True)
     signal.signal(signal.SIGINT, manual_stop)
     while __isRunning:
         img = camera.frame
         if img is not None:
-            frame = img.copy() # 复制图像(copy images)
-            Frame = run(frame)  
-            frame_resize = cv2.resize(Frame, (320, 240)) # 画面缩放到320*240(resize the image to 320*240)
+            frame = img.copy()
+            Frame = run(frame)
+            frame_resize = cv2.resize(Frame, (320, 240))
             cv2.imshow('frame', frame_resize)
             key = cv2.waitKey(1)
             if key == 27:
@@ -221,4 +225,4 @@ if __name__ == '__main__':
             time.sleep(0.01)
     camera.camera_close()
     cv2.destroyAllWindows()
-    
+

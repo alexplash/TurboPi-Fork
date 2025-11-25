@@ -98,18 +98,51 @@ class Sonar:
 
     def getDistance(self):
         dist = 99999
+
+        print(f"[Sonar] getDistance() called. Bus={self.i2c}, Addr=0x{self.i2c_addr:02X}")
+
         try:
             with SMBus(self.i2c) as bus:
-                msg = i2c_msg.write(self.i2c_addr, [0,])
-                bus.i2c_rdwr(msg)
-                read = i2c_msg.read(self.i2c_addr, 2)
-                bus.i2c_rdwr(read)
-                dist = int.from_bytes(bytes(list(read)), byteorder='little', signed=False)
-                if dist > 5000:
-                    dist = 5000
-        except BaseException as e:
-            print(e)
+                # ---- WRITE PHASE ----
+                try:
+                    print("[Sonar] Sending measurement request...")
+                    msg = i2c_msg.write(self.i2c_addr, [0])
+                    bus.i2c_rdwr(msg)
+                    print("[Sonar] Write OK.")
+                except Exception as e:
+                    print(f"[Sonar] ERROR during write to 0x{self.i2c_addr:02X} on bus {self.i2c}: {e}")
+                    # bail early, keep 99999
+                    return dist
+
+                # ---- READ PHASE ----
+                try:
+                    print("[Sonar] Reading 2 bytes...")
+                    read = i2c_msg.read(self.i2c_addr, 2)
+                    bus.i2c_rdwr(read)
+                    raw_bytes = bytes(list(read))
+                    print(f"[Sonar] Raw bytes: {raw_bytes!r}")
+                except Exception as e:
+                    print(f"[Sonar] ERROR during read from 0x{self.i2c_addr:02X} on bus {self.i2c}: {e}")
+                    return dist
+
+                # ---- PARSE PHASE ----
+                try:
+                    dist = int.from_bytes(raw_bytes, byteorder='little', signed=False)
+                    print(f"[Sonar] Parsed distance (mm): {dist}")
+                    if dist > 5000:
+                        print("[Sonar] Distance > 5000mm, clamping to 5000.")
+                        dist = 5000
+                except Exception as e:
+                    print(f"[Sonar] ERROR parsing distance from raw bytes {raw_bytes!r}: {e}")
+                    return 99999
+
+        except Exception as e:
+            # This would catch things like failing to open the bus at all
+            print(f"[Sonar] FATAL: Could not open I2C bus {self.i2c}: {e}")
+
+        print(f"[Sonar] Returning distance: {dist} mm")
         return dist
+
 
 if __name__ == '__main__':
     s = Sonar()
